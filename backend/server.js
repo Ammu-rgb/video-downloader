@@ -39,8 +39,19 @@ function isSupportedVideoUrl(url) {
 const express = require('express');
 const cors = require('cors');
 const ffmpeg = require('fluent-ffmpeg');
-ffmpeg.setFfmpegPath('C:\\Users\\Amaan\\Downloads\\ffmpeg-9.0.2-essentials_build\\bin\\ffmpeg.exe');
-ffmpeg.setFfprobePath('C:\\Users\\Amaan\\Downloads\\ffmpeg-9.0.2-essentials_build\\bin\\ffprobe.exe');
+ffmpeg.setFfmpegPath(
+  process.env.FFMPEG_PATH ||
+  (process.platform === 'win32'
+    ? 'C:\\Users\\Amaan\\Downloads\\ffmpeg-9.0.2-essentials_build\\bin\\ffmpeg.exe'
+    : 'ffmpeg')
+);
+
+ffmpeg.setFfprobePath(
+  process.env.FFPROBE_PATH ||
+  (process.platform === 'win32'
+    ? 'C:\\Users\\Amaan\\Downloads\\ffmpeg-9.0.2-essentials_build\\bin\\ffprobe.exe'
+    : 'ffprobe')
+);
 ffmpeg.getAvailableFormats((err, formats) => {
   if (err) {
     console.error('FFmpeg error:', err.message);
@@ -51,7 +62,7 @@ ffmpeg.getAvailableFormats((err, formats) => {
 });
 const app = express();
 app.use(helmet());
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const path = require('path');
 const fs = require('fs');
 const DOWNLOAD_DIR = path.join(__dirname, 'downloads');
@@ -74,7 +85,10 @@ if (!fs.existsSync(DOWNLOAD_DIR)) {
   fs.mkdirSync(DOWNLOAD_DIR, { recursive: true });
 }
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173',
+    process.env.FRONTEND_URL
+  ].filter(Boolean),
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type']
 }));
@@ -153,7 +167,12 @@ app.post('/api/video/info', (req, res) => {
   
   const path = require('path');
 
-  const ytDlpPath = path.join(__dirname, 'yt-dlp.exe');
+  const ytDlpPath =
+  process.env.YTDLP_PATH ||
+  path.join(
+    __dirname,
+    process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp'
+  );
 
   execFile(
     ytDlpPath,
@@ -321,7 +340,10 @@ if (format === 'mp3') {
     '--audio-format', 'mp3',
     '--audio-quality', '192K',
     '--ffmpeg-location',
-    'C:\\Users\\Amaan\\Downloads\\ffmpeg-9.0.2-essentials_build\\bin'
+    process.env.FFMPEG_PATH ||
+(process.platform === 'win32'
+  ? 'C:\\Users\\Amaan\\Downloads\\ffmpeg-9.0.2-essentials_build\\bin'
+  : '/usr/bin')
   );
 } else {
   downloadArgs.push(
@@ -332,11 +354,14 @@ if (format === 'mp3') {
 
 downloadArgs.push('-o', outputPath, '--', parsedUrl.href);
 
-const child = spawn(
-  path.join(__dirname, 'yt-dlp.exe'),
-  downloadArgs
-);
+const ytDlpPath =
+  process.env.YTDLP_PATH ||
+  path.join(
+    __dirname,
+    process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp'
+  );
 
+const child = spawn(ytDlpPath, downloadArgs);
   let stderr = '';
   let outputBuffer = '';
 
