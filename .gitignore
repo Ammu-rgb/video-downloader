@@ -1,0 +1,15 @@
+node_modules/
+**/node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+backend/downloads/
+__pycache__/
+
+yt-dlp.exe
+yt-dlp-new.exe
+yt-dlp-old.exe
+
+backend/yt-dlp*.exe
