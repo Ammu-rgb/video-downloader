@@ -64,6 +64,12 @@ const app = express();
 app.use(helmet());
 const PORT = process.env.PORT || 5000;
 const path = require('path');
+const potProviderArgs = process.env.BGUTIL_SERVER_HOME
+  ? [
+      '--extractor-args',
+      `youtubepot-bgutilscript:server_home=${process.env.BGUTIL_SERVER_HOME}`
+    ]
+  : [];
 const fs = require('fs');
 const DOWNLOAD_DIR = path.join(__dirname, 'downloads');
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
@@ -173,7 +179,6 @@ app.post('/api/video/info', (req, res) => {
     __dirname,
     process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp'
   );
-
   execFile(
     ytDlpPath,
     [
@@ -181,6 +186,7 @@ app.post('/api/video/info', (req, res) => {
       '--no-download',
       '--no-playlist',
       '--no-warnings',
+      ...potProviderArgs,
       '--',
       parsedUrl.href
     ],
@@ -326,10 +332,11 @@ app.post('/api/video/download', (req, res) => {
     status: 'downloading'
   });
 
- const downloadArgs = [
+const downloadArgs = [
   '--newline',
   '--no-playlist',
   '--no-warnings',
+  ...potProviderArgs,
   '--max-filesize', '100M',
 ];
 
