@@ -108,11 +108,18 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/api/diagnostics', (req, res) => {
-  res.json({
-    nodeVersion: process.version,
-    platform: process.platform,
-    ytDlpPath:
-      process.env.YTDLP_PATH || '/usr/local/bin/yt-dlp'
+  const { execFile } = require('child_process');
+
+  const ytDlpPath =
+    process.env.YTDLP_PATH || '/usr/local/bin/yt-dlp';
+
+  execFile(ytDlpPath, ['--version'], (error, stdout) => {
+    res.json({
+      nodeVersion: process.version,
+      platform: process.platform,
+      ytDlpPath,
+      ytDlpVersion: error ? 'Version check failed' : stdout.trim()
+    });
   });
 });
 
