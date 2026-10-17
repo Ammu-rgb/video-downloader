@@ -107,6 +107,14 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+app.get('/api/diagnostics', (req, res) => {
+  res.json({
+    nodeVersion: process.version,
+    platform: process.platform,
+    ytDlpPath:
+      process.env.YTDLP_PATH || '/usr/local/bin/yt-dlp'
+  });
+});
 
 app.get('/api/video/progress/:downloadId', (req, res) => {
   const progress = downloadProgress.get(req.params.downloadId);
