@@ -621,3 +621,7 @@ select[aria-label="Download format"] option {
   color: #64748b;
   opacity: 1;
 }
+/* Fix main heading visibility */
+.hero h1 {
+  color: #0f172a;
+}
