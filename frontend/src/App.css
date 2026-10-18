@@ -606,3 +606,18 @@ select[aria-label="Download format"] option {
   background-color: #111827;
   color: #f9fafb;
 }
+/* Fix navbar logo visibility */
+.navbar h2 {
+  color: #0f172a;
+}
+
+/* Fix URL input contrast */
+.download-box input {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+.download-box input::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
